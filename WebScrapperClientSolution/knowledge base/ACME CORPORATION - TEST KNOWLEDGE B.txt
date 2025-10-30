@@ -1,0 +1,61 @@
+ACME CORPORATION - TEST KNOWLEDGE BASE
+======================================
+
+COMPANY INFORMATION
+-------------------
+Company Name: ACME Corporation
+Founded: March 15, 2020
+Headquarters: 742 Evergreen Terrace, Springfield
+CEO: Jane Martinez
+Employee Count: 127 employees
+Annual Revenue: $12.5 million (2024)
+
+PRODUCT CATALOG
+---------------
+
+Product: CloudSync Pro
+- Price: $49.99/month
+- Features: Real-time synchronization, 500GB storage, 24/7 support
+- Release Date: January 10, 2024
+- SKU: CS-PRO-001
+
+Product: DataGuard Enterprise
+- Price: $299.99/month
+- Features: End-to-end encryption, unlimited storage, dedicated account manager
+- Release Date: June 5, 2023
+- SKU: DG-ENT-002
+
+Product: BasicPlan Starter
+- Price: $9.99/month
+- Features: 50GB storage, email support, basic encryption
+- Release Date: September 1, 2022
+- SKU: BP-STR-003
+
+SUPPORT HOURS
+-------------
+Monday-Friday: 9:00 AM - 8:00 PM EST
+Saturday: 10:00 AM - 4:00 PM EST
+Sunday: Closed
+Emergency Hotline: +1-555-0123 (24/7)
+
+RETURN POLICY
+-------------
+- 30-day money-back guarantee
+- Refunds processed within 5-7 business days
+- Cancellation requires 48-hour notice
+- No refunds after 30 days from purchase date
+
+TECHNICAL SPECIFICATIONS
+-------------------------
+CloudSync Pro System Requirements:
+- Operating System: Windows 10+, macOS 11+, Linux Ubuntu 20.04+
+- RAM: Minimum 4GB (8GB recommended)
+- Internet: 10 Mbps minimum download speed
+- Storage: 2GB free disk space for application
+
+OFFICE LOCATIONS
+----------------
+Headquarters: Springfield, USA
+Regional Office: Toronto, Canada
+Regional Office: London, United Kingdom
+Support Center: Mumbai, India
