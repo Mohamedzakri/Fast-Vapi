@@ -44,13 +44,26 @@ class BackgroundMonitor:
                     for event in new_events:
                         formatted = calendar_service.format_event_log(event)
 
-                        # Log to console
-                        logger.info("🆕 NEW EVENT DETECTED (Background)")
-                        logger.info(f"📌 Title: {formatted['title']}")
-                        logger.info(f"🕐 Start: {formatted['start_time']}")
-                        logger.info(f"🕑 End: {formatted['end_time']}")
-                        logger.info(f"👤 Creator: {formatted['creator']}")
-                        logger.info(f"🔗 Link: {formatted['link']}")
+                        # Parse start and end times for clean display
+                        start_time = formatted['start_time']
+                        end_time = formatted['end_time']
+
+                        # Extract just the time portion if it's a datetime
+                        if 'T' in start_time:
+                            start_display = start_time.split('T')[1].split('+')[0][:5]  # HH:MM
+                        else:
+                            start_display = start_time
+
+                        if 'T' in end_time:
+                            end_display = end_time.split('T')[1].split('+')[0][:5]  # HH:MM
+                        else:
+                            end_display = end_time
+
+                        # Beautiful clean log message
+                        logger.info(f"🎉 NEW EVENT IN YOUR PRIMARY CALENDAR: {formatted['title']}")
+                        logger.info(f"⏰ {start_display} → {end_display}")
+                        if formatted['location'] != 'N/A':
+                            logger.info(f"📍 Location: {formatted['location']}")
                         logger.info("-" * 80)
 
                         # Log to files
@@ -68,7 +81,6 @@ class BackgroundMonitor:
                             logger.error(f"❌ MongoDB save failed: {db_error}")
 
                     logger.info("=" * 80)
-
                 # Wait before next check
                 await asyncio.sleep(self.check_interval)
 

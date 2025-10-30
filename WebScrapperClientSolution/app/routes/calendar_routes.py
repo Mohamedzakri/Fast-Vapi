@@ -220,6 +220,7 @@ async def reset_monitoring():
             detail=str(e)
         )
 
+
 @router.get("/debug/all-events", summary="Debug: See all events with created times")
 async def debug_all_events():
     """
@@ -253,6 +254,7 @@ async def debug_all_events():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
 
 @router.get("/status", summary="Get monitoring status")
 async def get_monitoring_status():
@@ -294,27 +296,38 @@ async def calendar_webhook(request: Request):
         resource_id = headers.get('x-goog-resource-id')
         resource_state = headers.get('x-goog-resource-state')
 
-        logger.info("=" * 80)
-        logger.info("📨 WEBHOOK RECEIVED FROM GOOGLE CALENDAR")
-        logger.info(f"Channel ID: {channel_id}")
-        logger.info(f"Resource ID: {resource_id}")
-        logger.info(f"State: {resource_state}")
-        logger.info("=" * 80)
-
         # When we receive a webhook, check for new events
         if resource_state in ['exists', 'sync']:
             new_events = calendar_service.detect_new_events()
 
-            if new_events:
-                logger.info(f"🎉 Webhook triggered: {len(new_events)} new event(s) detected!")
+            logger.info(f"🔍 DEBUG: Detected {len(new_events)} new events from webhook trigger")
 
+            if new_events:
                 for event in new_events:
                     formatted = calendar_service.format_event_log(event)
 
-                    # Log to console
-                    logger.info("🆕 NEW EVENT FROM WEBHOOK!")
-                    logger.info(f"📌 {formatted['title']}")
-                    logger.info(f"🕐 {formatted['start_time']} - {formatted['end_time']}")
+                    # Parse start and end times for clean display
+                    start_time = formatted['start_time']
+                    end_time = formatted['end_time']
+
+                    # Extract just the time portion if it's a datetime
+                    if 'T' in start_time:
+                        start_display = start_time.split('T')[1].split('+')[0][:5]  # HH:MM
+                    else:
+                        start_display = start_time
+
+                    if 'T' in end_time:
+                        end_display = end_time.split('T')[1].split('+')[0][:5]  # HH:MM
+                    else:
+                        end_display = end_time
+
+                    # Beautiful clean log message
+                    logger.info("=" * 80)
+                    logger.info(f"🎉 NEW EVENT IN YOUR PRIMARY CALENDAR: {formatted['title']}")
+                    logger.info(f"⏰ {start_display} → {end_display}")
+                    if formatted['location'] != 'N/A':
+                        logger.info(f"📍 Location: {formatted['location']}")
+                    logger.info("=" * 80)
 
                     # Log to files
                     calendar_service.log_event_to_file(formatted)
@@ -420,6 +433,51 @@ async def register_webhook(webhook_url: str):
 
     except Exception as e:
         logger.error(f"❌ Failed to register webhook: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@router.post("/webhook/stop-all", summary="Emergency: Stop ALL webhooks")
+async def stop_all_webhooks():
+    """
+    Emergency endpoint to stop all known webhook channels
+
+    This will attempt to stop all the channel IDs we've seen
+    """
+    try:
+        # List of all channel IDs we've seen in the logs
+        known_channels = [
+            ("bd4a9359-2c4b-462c-ad7d-65e5a6afaf63", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+            ("ff849f26-13d2-4ab1-baaf-b9fd3ac9021f", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+            ("3ea70449-1d70-42ec-a135-c9684ed48822", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+            ("d0d29e1b-0958-468f-9f28-4ad10708a5b3", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+            ("e1438f72-add2-464b-a112-38194c335c74", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+            ("aa63e5d1-c7b6-4c1e-8287-62ef132d51cb", "DbadsCdr8PB3xdcj6UvbsQ_e3bc"),
+        ]
+
+        stopped = []
+        failed = []
+
+        for channel_id, resource_id in known_channels:
+            try:
+                calendar_service.stop_webhook_channel(channel_id, resource_id)
+                stopped.append(channel_id)
+                logger.info(f"✅ Stopped webhook: {channel_id}")
+            except Exception as e:
+                failed.append({"channel_id": channel_id, "error": str(e)})
+                logger.warning(f"⚠️ Could not stop {channel_id}: {e}")
+
+        return {
+            "success": True,
+            "stopped_count": len(stopped),
+            "failed_count": len(failed),
+            "stopped_channels": stopped,
+            "failed_channels": failed
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Failed to stop webhooks: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
