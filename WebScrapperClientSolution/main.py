@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.config.database import connect_to_mongo, close_mongo_connection
+from app.services.reminder_service import EmailNotifier, ReminderService, ReminderLoop
 from app.routes import scrape_router, calendar_router
 from app.services import DatabaseService
 from app.config.database import get_database
@@ -41,18 +42,38 @@ async def lifespan(app: FastAPI):
         db_service = DatabaseService(db)
         await db_service.create_indexes()
 
+        notifier = EmailNotifier()
+        reminder_service = ReminderService(notifier)
+        print("started reminder")
+        interval = int(os.getenv("REMINDER_INTERVAL_SECONDS", "60"))  # ✅ optional
+        reminder_loop = ReminderLoop(reminder_service, interval_seconds=interval)
+        reminder_loop.start()
+
+        app.state.reminder_service = reminder_service  # ✅ make available to routes
+        app.state.reminder_loop = reminder_loop        # ✅ keep a handle for shutdown
+
         logger.info("✅ Application startup complete")
 
     except Exception as e:
         logger.error(f"❌ Startup failed: {e}")
         raise
 
+    # Hand control to the app
     yield
 
     # Shutdown
     logger.info("🛑 Shutting down FastAPI Web Scraper Service...")
+    # Stop reminder loop
+    try:
+        loop = getattr(app.state, "reminder_loop", None)   # ✅ safer stop
+        if loop:
+            await loop.stop()
+    except Exception as e:
+        logger.warning("Error stopping reminder loop: %s", e)
+
     await close_mongo_connection()
     logger.info("✅ Application shutdown complete")
+
 
 
 # Create FastAPI application

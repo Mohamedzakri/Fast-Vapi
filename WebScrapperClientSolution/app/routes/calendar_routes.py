@@ -3,6 +3,8 @@ from app.services import calendar_service, DatabaseService
 from app.config.database import get_database
 from typing import Optional
 from typing import Dict, Any, List
+from fastapi import Request
+from app.services.reminder_service import ReminderService, EmailNotifier
 import logging
 from datetime import datetime, timedelta
 
@@ -220,6 +222,7 @@ async def reset_monitoring():
             detail=str(e)
         )
 
+
 @router.get("/debug/all-events", summary="Debug: See all events with created times")
 async def debug_all_events():
     """
@@ -253,6 +256,7 @@ async def debug_all_events():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
 
 @router.get("/status", summary="Get monitoring status")
 async def get_monitoring_status():
@@ -478,4 +482,69 @@ async def get_webhook_info():
         "success": True,
         "active_webhook": active_webhook if active_webhook.get("channel_id") else None,
         "webhook_active": active_webhook.get("channel_id") is not None
+    }
+
+
+@router.post("/reminders/check-now", summary="Check & email events starting in the next 5 minutes")
+async def check_reminders_now(request: Request):
+    """
+    Runs one reminder scan:
+    - Looks for events starting within the next 5 minutes
+    - Sends an email (via Gmail App Password) for each *new* event not yet notified
+    """
+    svc = getattr(request.app.state, "reminder_service", None)
+    if svc is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Reminder service not initialized"
+        )
+    sent = await svc.check_and_notify_once()
+    return {"success": True, "sent_for": sent, "count": len(sent)}
+
+
+@router.post("/reminders/test-email", summary="Send a test email to verify SMTP")
+async def reminders_test_email(request: Request):
+    """
+    Sends a simple test email using the same notifier used for reminders.
+    Useful to verify your SMTP env vars (SENDER_EMAIL, SENDER_PASSWORD, etc.)
+    """
+    svc = getattr(request.app.state, "reminder_service", None)
+    if svc is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Reminder service not initialized"
+        )
+
+    try:
+        svc.notifier.send("Test email from FastAPI", "✅ SMTP wiring looks good!")
+        return {"success": True, "message": "Test email sent"}
+    except Exception as e:
+        logger.exception("SMTP test failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"SMTP test failed: {e}")
+
+
+@router.get("/reminders/status", summary="Get reminder loop status")
+async def reminders_status(request: Request):
+    """
+    Returns the background reminder loop status and some diagnostics.
+    """
+    loop = getattr(request.app.state, "reminder_loop", None)
+    svc = getattr(request.app.state, "reminder_service", None)
+
+    if loop is None or svc is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Reminder service not initialized"
+        )
+
+    running = getattr(loop, "_running", False)
+    interval = getattr(loop, "interval", None)
+    cache_size = len(getattr(svc, "_notified_event_ids", set()))
+    last_reset = getattr(svc, "_last_cache_reset", None)
+
+    return {
+        "running": bool(running),
+        "interval_seconds": interval,
+        "notified_cache_size": cache_size,
+        "last_cache_reset_utc": last_reset.isoformat() if last_reset else None,
     }
