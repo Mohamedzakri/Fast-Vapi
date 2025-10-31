@@ -91,7 +91,7 @@ class CalendarService:
             # Format time for API
             time_min_str = time_min.isoformat() + 'Z'
 
-            logger.info(f"📅 Fetching events created after: {time_min_str}")
+            #logger.info(f"📅 Fetching events created after: {time_min_str}")
 
             # Call the Calendar API
             events_result = self.service.events().list(

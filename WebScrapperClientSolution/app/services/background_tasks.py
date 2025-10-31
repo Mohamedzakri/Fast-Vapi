@@ -104,7 +104,8 @@ class BackgroundMonitor:
             if stats.get('reminders_scheduled', 0) > 0:
                 logger.info(f"   ✅ Scheduled {stats['reminders_scheduled']} additional reminder(s)")
             else:
-                logger.info(f"   ✓ All upcoming events already have reminders scheduled")
+                # logger.info("✓ All upcoming events already have reminders scheduled")
+                pass
 
             # Show currently scheduled reminders
             scheduled = reminder_service.get_scheduled_reminders()

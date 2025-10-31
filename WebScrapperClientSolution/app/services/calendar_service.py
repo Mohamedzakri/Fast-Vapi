@@ -353,7 +353,7 @@ class CalendarService:
             # Format time for API
             time_min_str = time_min.isoformat() + 'Z'
 
-            logger.info(f"📅 Fetching events created after: {time_min_str}")
+            #logger.info(f"📅 Fetching events created after: {time_min_str}")
 
             # Call the Calendar API
             events_result = self.service.events().list(
@@ -652,41 +652,40 @@ class CalendarService:
             logger.error(f"❌ Failed to stop webhook: {e}")
             raise Exception(f"Failed to stop webhook: {str(e)}")
 
+    def get_upcoming_events(self, days_ahead: int = 7, max_results: int = 50):
+        """
+        Get upcoming events for the next X days
 
-def get_upcoming_events(self, days_ahead: int = 7, max_results: int = 50):
-    """
-    Get upcoming events for the next X days
+        Args:
+            days_ahead: Number of days to look ahead (default: 7)
+            max_results: Maximum number of events to return (default: 50)
 
-    Args:
-        days_ahead: Number of days to look ahead (default: 7)
-        max_results: Maximum number of events to return (default: 50)
+        Returns:
+            List of upcoming events
+        """
+        try:
+            now = datetime.utcnow().isoformat() + 'Z'
+            future = (datetime.utcnow() + timedelta(days=days_ahead)).isoformat() + 'Z'
 
-    Returns:
-        List of upcoming events
-    """
-    try:
-        now = datetime.utcnow().isoformat() + 'Z'
-        future = (datetime.utcnow() + timedelta(days=days_ahead)).isoformat() + 'Z'
+            #logger.info(f"📅 Fetching events from {now} to {future}")
 
-        logger.info(f"📅 Fetching events from {now} to {future}")
+            events_result = self.service.events().list(
+                calendarId='primary',
+                timeMin=now,
+                timeMax=future,
+                maxResults=max_results,
+                singleEvents=True,
+                orderBy='startTime'
+            ).execute()
 
-        events_result = self.service.events().list(
-            calendarId='primary',
-            timeMin=now,
-            timeMax=future,
-            maxResults=max_results,
-            singleEvents=True,
-            orderBy='startTime'
-        ).execute()
+            events = events_result.get('items', [])
+            #logger.info(f"📊 Found {len(events)} upcoming event(s)")
 
-        events = events_result.get('items', [])
-        logger.info(f"📊 Found {len(events)} upcoming event(s)")
+            return events
 
-        return events
-
-    except Exception as e:
-        logger.error(f"❌ Error fetching upcoming events: {e}")
-        return []
+        except Exception as e:
+            logger.error(f"❌ Error fetching upcoming events: {e}")
+            return []
 
 
 # Singleton instance

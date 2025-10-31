@@ -176,10 +176,11 @@ class ReminderService:
         Returns:
             Dict with stats about scheduled reminders
         """
+        """
         logger.info("=" * 80)
         logger.info(f"🔍 Checking for upcoming events (next {days_ahead} days)...")
         logger.info("=" * 80)
-
+        """
         try:
             # Fetch upcoming events
             events = calendar_service.get_upcoming_events(days_ahead=days_ahead)
@@ -187,9 +188,9 @@ class ReminderService:
             if not events:
                 logger.info("📭 No upcoming events found")
                 return {"events_found": 0, "reminders_scheduled": 0}
-
+            """
             logger.info(f"✅ Found {len(events)} upcoming event(s)")
-
+            """
             # Use custom intervals or default
             intervals = custom_intervals or self.default_intervals
 
@@ -202,11 +203,11 @@ class ReminderService:
                 for interval in intervals:
                     if self.schedule_reminder(event, interval):
                         reminders_scheduled += 1
-
+            """
             logger.info("=" * 80)
             logger.info(f"✅ Scheduled {reminders_scheduled} reminder(s) for {len(events)} event(s)")
             logger.info("=" * 80)
-
+            """
             return {
                 "events_found": len(events),
                 "reminders_scheduled": reminders_scheduled
