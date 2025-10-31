@@ -41,7 +41,22 @@ async def lifespan(app: FastAPI):
         db_service = DatabaseService(db)
         await db_service.create_indexes()
 
+        # Start the reminder scheduler
+        from app.services import reminder_service, background_monitor
+        reminder_service.start()
+        logger.info("⏰ Reminder scheduler started")
+
+        # Start the automated background monitor
+        await background_monitor.start(db)
+        logger.info("🤖 Automated reminder monitor started")
+
         logger.info("✅ Application startup complete")
+        logger.info("=" * 80)
+        logger.info("💡 System will now automatically:")
+        logger.info("   • Monitor for new calendar events")
+        logger.info("   • Schedule reminders (10m, 10h, 24h before)")
+        logger.info("   • Send email notifications at the right time")
+        logger.info("=" * 80)
 
     except Exception as e:
         logger.error(f"❌ Startup failed: {e}")
@@ -51,6 +66,14 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("🛑 Shutting down FastAPI Web Scraper Service...")
+
+    # Stop background monitor
+    from app.services import background_monitor, reminder_service
+    await background_monitor.stop()
+
+    # Stop the reminder scheduler
+    reminder_service.shutdown()
+
     await close_mongo_connection()
     logger.info("✅ Application shutdown complete")
 
