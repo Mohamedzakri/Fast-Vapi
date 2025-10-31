@@ -198,7 +198,7 @@ class ReminderService:
             reminders_scheduled = 0
             for event in events:
                 event_title = event.get('summary', 'Untitled Event')
-                logger.info(f"\n📌 Processing: {event_title}")
+                #logger.info(f"\n📌 Processing: {event_title}")
 
                 for interval in intervals:
                     if self.schedule_reminder(event, interval):

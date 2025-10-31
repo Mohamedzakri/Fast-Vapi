@@ -104,7 +104,7 @@ class CalendarService:
 
             events = events_result.get('items', [])
 
-            logger.info(f"📊 Found {len(events)} events")
+            #logger.info(f"📊 Found {len(events)} events")
 
             return events
 

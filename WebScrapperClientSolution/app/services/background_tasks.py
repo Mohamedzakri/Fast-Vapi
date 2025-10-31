@@ -54,10 +54,11 @@ class BackgroundMonitor:
     async def check_and_schedule_reminders(self):
         """Check for new/upcoming events and schedule reminders"""
         try:
+            """
             logger.info("\n" + "=" * 80)
             logger.info(f"🔍 Checking for events... ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
             logger.info("=" * 80)
-
+            """
             # Check for new events (created/modified recently)
             new_events = calendar_service.detect_new_events()
 
@@ -95,7 +96,7 @@ class BackgroundMonitor:
                     calendar_service.log_event_to_file(formatted)
 
             # Also check upcoming events (next 7 days) to catch any we might have missed
-            logger.info(f"\n🔄 Checking upcoming events (next 7 days)...")
+            #logger.info(f"\n🔄 Checking upcoming events (next 7 days)...")
             stats = await reminder_service.schedule_reminders_for_upcoming_events(
                 days_ahead=7,
                 custom_intervals=self.reminder_intervals
@@ -106,20 +107,22 @@ class BackgroundMonitor:
             else:
                 # logger.info("✓ All upcoming events already have reminders scheduled")
                 pass
-
+            """
             # Show currently scheduled reminders
             scheduled = reminder_service.get_scheduled_reminders()
+            
             if scheduled:
-                logger.info(f"\n📋 Currently scheduled reminders: {len(scheduled)}")
+                # logger.info(f"\n📋 Currently scheduled reminders: {len(scheduled)}")
                 for reminder in scheduled[:5]:  # Show first 5
-                    logger.info(f"   • {reminder['event_title']} - {reminder['reminder_label']} before")
+                    # logger.info(f"   • {reminder['event_title']} - {reminder['reminder_label']} before")
                 if len(scheduled) > 5:
-                    logger.info(f"   ... and {len(scheduled) - 5} more")
+                    # logger.info(f"   ... and {len(scheduled) - 5} more")
             else:
-                logger.info(f"\n📋 No reminders currently scheduled")
+                # logger.info(f"\n📋 No reminders currently scheduled")
+                pass
 
-            logger.info("=" * 80 + "\n")
-
+            # logger.info("=" * 80 + "\n")
+            """
         except Exception as e:
             logger.error(f"❌ Error in check_and_schedule_reminders: {e}")
 
