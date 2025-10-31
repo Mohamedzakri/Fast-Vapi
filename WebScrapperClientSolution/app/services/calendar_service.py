@@ -323,8 +323,12 @@ class CalendarService:
             self.service = build('calendar', 'v3', credentials=self.creds)
             logger.info("✅ Google Calendar service initialized successfully")
 
-            # Set initial last_checked time
-            self.last_checked = datetime.utcnow()
+            # --- START OF FIX ---
+            # Set initial last_checked time to 5 minutes ago
+            # This prevents missing events created just before startup
+            self.last_checked = datetime.utcnow() - timedelta(minutes=5)
+            logger.info(f"Initial check time set to: {self.last_checked.isoformat()}Z")
+            # --- END OF FIX ---
 
         except Exception as e:
             logger.error(f"❌ Failed to initialize Google Calendar service: {e}")
@@ -340,32 +344,32 @@ class CalendarService:
 
         Args:
             max_results: Maximum number of events to return
-            time_min: Get events created after this time (defaults to last check)
-
-        Returns:
-            List of calendar events
+            time_min: Get events UPDATED after this time (defaults to last check)
         """
         try:
             if not time_min:
                 time_min = datetime.utcnow() - timedelta(hours=1)
 
             # Format time for API
-            time_min_str = time_min.isoformat() + 'Z'
+            # We use the time_min parameter as the value for 'updatedMin'
+            updated_min_str = time_min.isoformat() + 'Z'
 
-            logger.info(f"📅 Fetching events created after: {time_min_str}")
+            # --- MODIFICATION START ---
+            logger.info(f"📅 Fetching events updated after: {updated_min_str}") # Changed log
 
             # Call the Calendar API
             events_result = self.service.events().list(
                 calendarId='primary',
-                timeMin=time_min_str,
+                updatedMin=updated_min_str,      # <-- FIX: Use updatedMin
                 maxResults=max_results,
                 singleEvents=True,
-                orderBy='startTime'
+                orderBy='updated'              # <-- FIX: Order by updated time
             ).execute()
+            # --- MODIFICATION END ---
 
             events = events_result.get('items', [])
 
-            logger.info(f"📊 Found {len(events)} events")
+            logger.info(f"📊 Found {len(events)} events updated since last check") # Changed log
 
             return events
 
@@ -378,16 +382,19 @@ class CalendarService:
 
     def detect_new_events(self) -> List[Dict[str, Any]]:
         """
-        Detect events created since last check
+        Detect events created OR UPDATED since last check
 
         Returns:
-            List of newly created events
+            List of newly created or updated events
         """
         try:
-            if not self.last_checked:
-                self.last_checked = datetime.utcnow() - timedelta(minutes=5)
+            # Store the 'start time' of this check
+            check_start_time = datetime.utcnow()
 
-            # Get events from last check time
+            # The if not self.last_checked block is no longer needed
+            # because we now set it in initialize_service()
+
+            # Get events updated since our last check
             events = self.get_recent_events(
                 max_results=50,
                 time_min=self.last_checked
@@ -400,19 +407,22 @@ class CalendarService:
 
                 # Check if this is a new event we haven't logged yet
                 if event_id not in self.monitored_events:
-                    # Check if event was created recently (within monitoring window)
-                    created = event.get('created')
-                    if created:
-                        created_dt = datetime.fromisoformat(created.replace('Z', '+00:00'))
-                        if created_dt.replace(tzinfo=None) >= self.last_checked:
-                            new_events.append(event)
-                            self.monitored_events.add(event_id)
+                    new_events.append(event)
+                    self.monitored_events.add(event_id)
 
-            # Update last checked time
-            self.last_checked = datetime.utcnow()
+            # --- START OF FIX ---
+            # CRITICAL FIX for Eventual Consistency:
+            # We set the *next* check time to be 30 seconds *before*
+            # this check started. This creates an overlapping window.
+            safety_margin = timedelta(seconds=30)
+            self.last_checked = check_start_time - safety_margin
+
+            # This log now correctly reflects the value
+            logger.info(f"Next check window will start from: {self.last_checked.isoformat()}Z")
+            # --- END OF FIX ---
 
             if new_events:
-                logger.info(f"🆕 Detected {len(new_events)} new event(s)!")
+                logger.info(f"🆕 Detected {len(new_events)} new/updated event(s)!")
 
             return new_events
 
