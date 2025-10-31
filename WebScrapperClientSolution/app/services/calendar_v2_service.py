@@ -43,10 +43,9 @@ class CalendarV2Service:
                     token.write(creds.to_json())
 
             self.service = build('calendar', 'v3', credentials=creds)
-            logger.info("✅ Google Calendar service initialized successfully")
-
+            logger.info("<><><> Google Calendar service initialized successfully <><><>")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Calendar service: {e}")
+            logger.error(f"<><><> Failed to initialize Calendar service: {e} <><><>")
             raise
 
     def get_recent_events(self, max_results=10, hours_back=1):
@@ -73,7 +72,7 @@ class CalendarV2Service:
             ).execute()
 
             events = events_result.get('items', [])
-            logger.info(f"📅 Fetched {len(events)} events from the last {hours_back} hour(s)")
+            #logger.info(f"📅 Fetched {len(events)} events from the last {hours_back} hour(s)")
 
             return events
 
@@ -107,7 +106,7 @@ class CalendarV2Service:
             ).execute()
 
             events = events_result.get('items', [])
-            logger.info(f"📅 Fetched {len(events)} upcoming events in the next {hours_ahead} hours")
+            #logger.info(f"📅 Fetched {len(events)} upcoming events in the next {hours_ahead} hours")
 
             return events
 
