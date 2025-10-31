@@ -50,6 +50,11 @@ async def lifespan(app: FastAPI):
         await background_monitor.start(db)
         logger.info("🤖 Automated reminder monitor started")
 
+        # Start the event monitor for new calendar events
+        from app.services import event_monitor
+        await event_monitor.start()
+        logger.info("📡 Event monitor started")
+
         logger.info("✅ Application startup complete")
         logger.info("=" * 80)
         logger.info("💡 System will now automatically:")
@@ -68,8 +73,11 @@ async def lifespan(app: FastAPI):
     logger.info("🛑 Shutting down FastAPI Web Scraper Service...")
 
     # Stop background monitor
-    from app.services import background_monitor, reminder_service
+    from app.services import background_monitor, reminder_service, event_monitor
     await background_monitor.stop()
+
+    # Stop event monitor
+    await event_monitor.stop()
 
     # Stop the reminder scheduler
     reminder_service.shutdown()
