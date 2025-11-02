@@ -34,9 +34,9 @@ class BackgroundMonitor:
         self.db_service = DatabaseService(db)
 
         logger.info("=" * 80)
-        logger.info("🚀 AUTOMATED REMINDER SYSTEM STARTED")
-        logger.info(f"⏱️  Checking for new events every {self.check_interval} seconds")
-        logger.info(f"🔔 Auto-scheduling reminders: {', '.join([i['label'] for i in self.reminder_intervals])}")
+        logger.info("AUTOMATED REMINDER SYSTEM STARTED")
+        logger.info(f"Checking for new events every {self.check_interval} seconds")
+        logger.info(f"Auto-scheduling reminders: {', '.join([i['label'] for i in self.reminder_intervals])}")
         logger.info("=" * 80)
 
         # Initial check on startup
@@ -48,7 +48,7 @@ class BackgroundMonitor:
                 await self.check_and_schedule_reminders()
 
             except Exception as e:
-                logger.error(f"❌ Background monitoring error: {e}")
+                logger.error(f"Background monitoring error: {e}")
                 await asyncio.sleep(self.check_interval)
 
     async def check_and_schedule_reminders(self):
@@ -63,12 +63,12 @@ class BackgroundMonitor:
             new_events = calendar_service.detect_new_events()
 
             if new_events:
-                logger.info(f"🎉 Found {len(new_events)} new/modified event(s)")
+                logger.info(f"Found {len(new_events)} new/modified event(s)")
 
                 for event in new_events:
                     formatted = calendar_service.format_event_log(event)
 
-                    logger.info(f"\n📌 New Event Detected:")
+                    logger.info(f"\n New Event Detected:")
                     logger.info(f"   Title: {formatted['title']}")
                     logger.info(f"   Start: {formatted['start_time']}")
                     logger.info(f"   End: {formatted['end_time']}")
@@ -80,30 +80,30 @@ class BackgroundMonitor:
                             'detected_at': datetime.utcnow(),
                             'source': 'background_monitoring'
                         })
-                        logger.info("   ✅ Saved to MongoDB")
+                        logger.info("   Saved to MongoDB")
                     except Exception as db_error:
-                        logger.error(f"   ❌ MongoDB save failed: {db_error}")
+                        logger.error(f"   MongoDB save failed: {db_error}")
 
                     # Auto-schedule reminders for this event
-                    logger.info(f"   🔔 Scheduling reminders...")
+                    logger.info(f"   Scheduling reminders...")
                     for interval in self.reminder_intervals:
                         if reminder_service.schedule_reminder(event, interval):
-                            logger.info(f"      ✅ Scheduled: {interval['label']} before")
+                            logger.info(f"      Scheduled: {interval['label']} before")
                         else:
-                            logger.debug(f"      ⏭️ Skipped: {interval['label']} before")
+                            logger.debug(f"     Skipped: {interval['label']} before")
 
                     # Log to file
                     calendar_service.log_event_to_file(formatted)
 
             # Also check upcoming events (next 7 days) to catch any we might have missed
-            #logger.info(f"\n🔄 Checking upcoming events (next 7 days)...")
+
             stats = await reminder_service.schedule_reminders_for_upcoming_events(
                 days_ahead=7,
                 custom_intervals=self.reminder_intervals
             )
 
             if stats.get('reminders_scheduled', 0) > 0:
-                logger.info(f"   ✅ Scheduled {stats['reminders_scheduled']} additional reminder(s)")
+                logger.info(f"   Scheduled {stats['reminders_scheduled']} additional reminder(s)")
             else:
                 # logger.info("✓ All upcoming events already have reminders scheduled")
                 pass
@@ -112,25 +112,25 @@ class BackgroundMonitor:
             scheduled = reminder_service.get_scheduled_reminders()
             
             if scheduled:
-                # logger.info(f"\n📋 Currently scheduled reminders: {len(scheduled)}")
+                # logger.info(f"\nCurrently scheduled reminders: {len(scheduled)}")
                 for reminder in scheduled[:5]:  # Show first 5
                     # logger.info(f"   • {reminder['event_title']} - {reminder['reminder_label']} before")
                 if len(scheduled) > 5:
                     # logger.info(f"   ... and {len(scheduled) - 5} more")
             else:
-                # logger.info(f"\n📋 No reminders currently scheduled")
+                # logger.info(f"\nNo reminders currently scheduled")
                 pass
 
             # logger.info("=" * 80 + "\n")
             """
         except Exception as e:
-            logger.error(f"❌ Error in check_and_schedule_reminders: {e}")
+            logger.error(f"Error in check_and_schedule_reminders: {e}")
 
     async def start(self, db):
         """Start the background monitoring task"""
         if not self.running:
             self.task = asyncio.create_task(self.monitor_calendar(db))
-            logger.info("✅ Background monitoring task created")
+            logger.info("Background monitoring task created")
 
     async def stop(self):
         """Stop the background monitoring task"""
@@ -142,7 +142,7 @@ class BackgroundMonitor:
                     await self.task
                 except asyncio.CancelledError:
                     pass
-            logger.info("🛑 Background monitoring stopped")
+            logger.info("Background monitoring stopped")
 
 
 # Singleton instance

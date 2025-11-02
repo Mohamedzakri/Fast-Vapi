@@ -58,7 +58,7 @@ class ScraperService:
             # Suppress logging
             chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-            logger.info("🚀 Initializing Chrome WebDriver using Selenium Manager...")
+            logger.info(" Initializing Chrome WebDriver using Selenium Manager...")
 
             # Initialize the Service object. Selenium Manager will take over.
             # No executable_path or os_type is needed.
@@ -68,20 +68,20 @@ class ScraperService:
             driver = webdriver.Chrome(service=service, options=chrome_options)
             driver.set_page_load_timeout(self.timeout)
 
-            logger.info("✅ Chrome WebDriver initialized successfully")
+            logger.info(" Chrome WebDriver initialized successfully")
             return driver
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Chrome WebDriver: {e}")
+            logger.error(f" Failed to initialize Chrome WebDriver: {e}")
 
             # Add helpful hints for common Selenium Manager issues
             msg = str(e).lower()
             if "cannot find chrome binary" in msg:
                 logger.error(
-                    "💡 Hint: Selenium Manager could not find an installed Google Chrome. Please ensure Google Chrome is installed in the default location.")
+                    " Hint: Selenium couldn't find Google Chrome. Please ensure Google Chrome is installed.")
             elif "session not created" in msg and "this version of chromedriver only supports" in msg:
                 logger.error(
-                    "💡 Hint: Potential mismatch. Try clearing the Selenium cache (e.g., ~/.cache/selenium) and retrying.")
+                    " Hint: Potential mismatch. Try clearing the Selenium cache (e.g., ~/.cache/selenium) and retrying.")
 
             raise Exception(f"WebDriver initialization failed: {str(e)}")
 
@@ -113,7 +113,7 @@ class ScraperService:
         """
         driver = None
         try:
-            logger.info(f"🌐 Starting Selenium scrape for URL: {url}")
+            logger.info(f" Starting Selenium scrape for URL: {url}")
 
             # Initialize WebDriver
             driver = self._get_chrome_driver()
@@ -157,15 +157,15 @@ class ScraperService:
                 'error_message': None
             }
 
-            logger.info(f"✅ Successfully scraped with Selenium: {url}")
-            logger.info(f"📊 Content length: {scraped_data['content_length']} characters")
-            logger.info(f"📄 Page title: {title}")
+            logger.info(f" Successfully scraped with Selenium: {url}")
+            logger.info(f" Content length: {scraped_data['content_length']} characters")
+            logger.info(f" Page title: {title}")
 
             return scraped_data
 
         except Exception as e:
             error_msg = f"Selenium scraping failed: {str(e)}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(f" {error_msg}")
             raise Exception(error_msg)
 
         finally:
@@ -173,16 +173,16 @@ class ScraperService:
             if driver:
                 try:
                     driver.quit()
-                    logger.info("🔒 Chrome WebDriver closed")
+                    logger.info(" Chrome WebDriver closed")
                 except Exception as e:
-                    logger.warning(f"⚠️  Error closing WebDriver: {e}")
+                    logger.warning(f"️ Error closing WebDriver: {e}")
 
     async def _scrape_with_requests(self, url: str) -> Dict[str, Any]:
         """
         Scrape URL using requests library for static content
         """
         try:
-            logger.info(f"🌐 Starting requests scrape for URL: {url}")
+            logger.info(f" Starting requests scrape for URL: {url}")
 
             # Make HTTP request
             response = requests.get(
@@ -216,35 +216,35 @@ class ScraperService:
                 'error_message': None
             }
 
-            logger.info(f"✅ Successfully scraped with requests: {url}")
-            logger.info(f"📊 Content length: {scraped_data['content_length']} characters")
-            logger.info(f"📄 Page title: {title}")
+            logger.info(f" Successfully scraped with requests: {url}")
+            logger.info(f" Content length: {scraped_data['content_length']} characters")
+            logger.info(f" Page title: {title}")
 
             return scraped_data
 
         except requests.exceptions.Timeout:
             error_msg = f"Request timeout after {self.timeout} seconds"
-            logger.error(f"⏱️  {error_msg} for URL: {url}")
+            logger.error(f"  {error_msg} for URL: {url}")
             raise Exception(error_msg)
 
         except requests.exceptions.ConnectionError:
             error_msg = "Failed to connect to the URL"
-            logger.error(f"🔌 {error_msg}: {url}")
+            logger.error(f" {error_msg}: {url}")
             raise Exception(error_msg)
 
         except requests.exceptions.HTTPError as e:
             error_msg = f"HTTP error occurred: {e.response.status_code}"
-            logger.error(f"❌ {error_msg} for URL: {url}")
+            logger.error(f" {error_msg} for URL: {url}")
             raise Exception(error_msg)
 
         except requests.exceptions.RequestException as e:
             error_msg = f"Request failed: {str(e)}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(f" {error_msg}")
             raise Exception(error_msg)
 
         except Exception as e:
             error_msg = f"Unexpected error during scraping: {str(e)}"
-            logger.error(f"💥 {error_msg}")
+            logger.error(f" {error_msg}")
             raise Exception(error_msg)
 
     def _extract_title(self, soup: BeautifulSoup) -> Optional[str]:
@@ -254,7 +254,7 @@ class ScraperService:
                 return soup.title.string.strip()
             return None
         except Exception as e:
-            logger.warning(f"⚠️  Could not extract title: {e}")
+            logger.warning(f"  Could not extract title: {e}")
             return None
 
     def _extract_meta_description(self, soup: BeautifulSoup) -> Optional[str]:
@@ -265,7 +265,7 @@ class ScraperService:
                 return meta_desc.get('content').strip()
             return None
         except Exception as e:
-            logger.warning(f"⚠️  Could not extract meta description: {e}")
+            logger.warning(f"  Could not extract meta description: {e}")
             return None
 
 

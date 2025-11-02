@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events
     """
     # Startup
-    logger.info("🚀 Starting FastAPI Web Scraper Service...")
+    logger.info("Starting FastAPI Web Scraper Service...")
 
     try:
         # Connect to MongoDB
@@ -44,33 +44,33 @@ async def lifespan(app: FastAPI):
         # Start the reminder scheduler
         from app.services import reminder_service, background_monitor
         reminder_service.start()
-        logger.info("⏰ Reminder scheduler started")
+        logger.info("Reminder scheduler started")
 
         # Start the automated background monitor
         await background_monitor.start(db)
-        logger.info("🤖 Automated reminder monitor started")
+        logger.info("Automated reminder monitor started")
 
         # Start the event monitor for new calendar events
         from app.services import event_monitor
         await event_monitor.start()
-        logger.info("📡 Event monitor started")
+        logger.info("Event monitor started")
 
-        logger.info("✅ Application startup complete")
+        logger.info("Application startup complete")
         logger.info("=" * 80)
-        logger.info("💡 System will now automatically:")
+        logger.info("System will now automatically:")
         logger.info("   • Monitor for new calendar events")
         logger.info("   • Schedule reminders (10m, 10h, 24h before)")
         logger.info("   • Send email notifications at the right time")
         logger.info("=" * 80)
 
     except Exception as e:
-        logger.error(f"❌ Startup failed: {e}")
+        logger.error(f"Startup failed: {e}")
         raise
 
     yield
 
     # Shutdown
-    logger.info("🛑 Shutting down FastAPI Web Scraper Service...")
+    logger.info("Shutting down FastAPI Web Scraper Service...")
 
     # Stop background monitor
     from app.services import background_monitor, reminder_service, event_monitor
@@ -83,7 +83,7 @@ async def lifespan(app: FastAPI):
     reminder_service.shutdown()
 
     await close_mongo_connection()
-    logger.info("✅ Application shutdown complete")
+    logger.info("Application shutdown complete")
 
 
 # Create FastAPI application

@@ -31,7 +31,7 @@ class HtmlKnowledgeBaseFormatter:
             'aside', 'form', 'button', 'noscript', 'svg'
         ]
 
-        logger.info("✅ HtmlKnowledgeBaseFormatter initialized (Dense AI-Structure)")
+        logger.info("HtmlKnowledgeBaseFormatter initialized (Dense AI-Structure)")
 
     def _clean_html(self, html_content: str) -> str:
         """
@@ -63,7 +63,7 @@ class HtmlKnowledgeBaseFormatter:
                 return str(soup)
 
         except Exception as e:
-            logger.error(f"❌ Error during HTML cleaning: {e}")
+            logger.error(f"Error during HTML cleaning: {e}")
             return html_content  # Fallback to original content
 
     def format(self, html_content: str) -> str:
@@ -118,11 +118,11 @@ class HtmlKnowledgeBaseFormatter:
             # --- D. Final Cleanup ---
             clean_text = processed_text.strip()
 
-            logger.info(f"✅ Successfully formatted HTML to Dense AI-style text. Length: {len(clean_text)}")
+            logger.info(f"Successfully formatted HTML to Dense AI-style text. Length: {len(clean_text)}")
             return clean_text
 
         except Exception as e:
-            logger.error(f"❌ Failed to format HTML to Dense AI style: {e}")
+            logger.error(f"Failed to format HTML to Dense AI style: {e}")
             # Fallback to empty string or clean Markdown on failure
             return markdown_content.strip() if 'markdown_content' in locals() else ""
 

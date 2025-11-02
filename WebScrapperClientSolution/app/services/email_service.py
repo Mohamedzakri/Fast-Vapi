@@ -42,7 +42,7 @@ class EmailService:
         try:
             # Create message
             message = MIMEMultipart("alternative")
-            message["Subject"] = f"⏰ Reminder: {event_title}"
+            message["Subject"] = f" Reminder: {event_title}"
             message["From"] = self.sender_email
             message["To"] = self.receiver_email
 
@@ -98,11 +98,11 @@ This is an automated reminder from your Calendar Notification System.
                 start_tls=True
             )
 
-            logger.info(f"✅ Email sent successfully: {event_title}")
+            logger.info(f"Email sent successfully: {event_title}")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to send email: {e}")
+            logger.error(f"Failed to send email: {e}")
             return False
 
 

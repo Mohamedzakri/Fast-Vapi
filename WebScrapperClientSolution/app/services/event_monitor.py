@@ -16,30 +16,30 @@ class EventMonitor:
         self.check_interval = 60  # Check every 60 seconds
         self.known_event_ids: Set[str] = set()
         self._monitor_task = None
-        logger.info("📡 EventMonitor initialized")
+        logger.info("EventMonitor initialized")
 
     async def start(self):
         """Start monitoring for new events"""
         if self.is_running:
-            logger.warning("⚠️ EventMonitor is already running")
+            logger.warning("EventMonitor is already running")
             return
 
         self.is_running = True
-        logger.info("🚀 Starting EventMonitor...")
+        logger.info("Starting EventMonitor...")
 
         # Initial load of existing events (so we don't notify for old events)
         await self._initialize_known_events()
 
         # Start the monitoring loop
         self._monitor_task = asyncio.create_task(self._monitor_loop())
-        logger.info(f"✅ EventMonitor started (checking every {self.check_interval}s)")
+        logger.info(f"EventMonitor started (checking every {self.check_interval}s)")
 
     async def stop(self):
         """Stop monitoring"""
         if not self.is_running:
             return
 
-        logger.info("🛑 Stopping EventMonitor...")
+        logger.info("Stopping EventMonitor...")
         self.is_running = False
 
         if self._monitor_task:
@@ -49,12 +49,12 @@ class EventMonitor:
             except asyncio.CancelledError:
                 pass
 
-        logger.info("✅ EventMonitor stopped")
+        logger.info("EventMonitor stopped")
 
     async def _initialize_known_events(self):
         """Load existing events so we don't notify for them on startup"""
         try:
-            logger.info("📋 Loading existing events (to prevent initial spam)...")
+            logger.info("Loading existing events (to prevent initial spam)...")
 
             # Get events from the last 7 days and next 30 days
             events = calendar_v2_service.get_recent_events(max_results=100, hours_back=168)  # 7 days
@@ -67,14 +67,14 @@ class EventMonitor:
                 if event_id:
                     self.known_event_ids.add(event_id)
 
-            logger.info(f"✅ Initialized with {len(self.known_event_ids)} existing events")
+            logger.info(f"Initialized with {len(self.known_event_ids)} existing events")
 
         except Exception as e:
-            logger.error(f"❌ Error initializing known events: {e}")
+            logger.error(f"Error initializing known events: {e}")
 
     async def _monitor_loop(self):
         """Main monitoring loop"""
-        logger.info("🔄 EventMonitor loop started")
+        logger.info("EventMonitor loop started")
 
         while self.is_running:
             try:
@@ -82,11 +82,11 @@ class EventMonitor:
                 await asyncio.sleep(self.check_interval)
 
             except asyncio.CancelledError:
-                logger.info("🛑 Monitor loop cancelled")
+                logger.info("Monitor loop cancelled")
                 break
 
             except Exception as e:
-                logger.error(f"❌ Error in monitor loop: {e}")
+                logger.error(f"Error in monitor loop: {e}")
                 await asyncio.sleep(self.check_interval)  # Continue despite errors
 
     async def _check_for_new_events(self):
@@ -114,12 +114,12 @@ class EventMonitor:
                     try:
                         await new_event_notifier.notify_new_event(event)
                     except Exception as e:
-                        logger.error(f"❌ Error notifying for event {event.get('id')}: {e}")
+                        logger.error(f"Error notifying for event {event.get('id')}: {e}")
             else:
-                logger.debug("✓ No new events found")
+                logger.debug("No new events found")
 
         except Exception as e:
-            logger.error(f"❌ Error checking for new events: {e}")
+            logger.error(f"Error checking for new events: {e}")
 
 
 # Create singleton instance

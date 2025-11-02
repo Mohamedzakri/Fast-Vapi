@@ -13,7 +13,7 @@ class DatabaseService:
     def __init__(self, database: AsyncIOMotorDatabase):
         self.db = database
         self.collection = self.db.scraped_pages
-        logger.info("✅ DatabaseService initialized")
+        logger.info("DatabaseService initialized")
 
     async def create_indexes(self):
         """Create indexes for better query performance"""
@@ -31,9 +31,9 @@ class DatabaseService:
             )
             # ---------------------------------------------------------
 
-            logger.info("✅ Database indexes created")
+            logger.info("Database indexes created")
         except Exception as e:
-            logger.error(f"❌ Failed to create indexes: {e}")
+            logger.error(f"Failed to create indexes: {e}")
 
     async def save_scraped_data(self, scraped_data: Dict[str, Any]) -> str:
         """
@@ -49,12 +49,12 @@ class DatabaseService:
             # Insert the document
             result = await self.collection.insert_one(scraped_data)
 
-            logger.info(f"💾 Saved to MongoDB with ID: {result.inserted_id}")
+            logger.info(f"Saved to MongoDB with ID: {result.inserted_id}")
 
             return str(result.inserted_id)
 
         except Exception as e:
-            logger.error(f"❌ Failed to save to MongoDB: {e}")
+            logger.error(f"Failed to save to MongoDB: {e}")
             raise Exception(f"Database save failed: {str(e)}")
 
     async def get_scraped_data_by_id(self, document_id: str) -> Optional[Dict[str, Any]]:
@@ -81,7 +81,7 @@ class DatabaseService:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Failed to retrieve document: {e}")
+            logger.error(f"Failed to retrieve document: {e}")
             return None
 
     async def get_scraped_data_by_url(self, url: str) -> Optional[Dict[str, Any]]:
@@ -107,7 +107,7 @@ class DatabaseService:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Failed to retrieve document by URL: {e}")
+            logger.error(f"Failed to retrieve document by URL: {e}")
             return None
 
     async def get_all_scraped_data(self, limit: int = 100) -> List[Dict[str, Any]]:
@@ -131,7 +131,7 @@ class DatabaseService:
             return documents
 
         except Exception as e:
-            logger.error(f"❌ Failed to retrieve documents: {e}")
+            logger.error(f"Failed to retrieve documents: {e}")
             return []
 
     async def delete_scraped_data(self, document_id: str) -> bool:
@@ -151,13 +151,13 @@ class DatabaseService:
             result = await self.collection.delete_one({"_id": ObjectId(document_id)})
 
             if result.deleted_count > 0:
-                logger.info(f"🗑️ Deleted document: {document_id}")
+                logger.info(f"Deleted document: {document_id}")
                 return True
 
             return False
 
         except Exception as e:
-            logger.error(f"❌ Failed to delete document: {e}")
+            logger.error(f"Failed to delete document: {e}")
             return False
 
     async def get_collection_stats(self) -> Dict[str, Any]:
@@ -177,5 +177,5 @@ class DatabaseService:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ Failed to get stats: {e}")
+            logger.error(f"Failed to get stats: {e}")
             return {}

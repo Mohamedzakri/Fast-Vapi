@@ -72,12 +72,11 @@ class CalendarV2Service:
             ).execute()
 
             events = events_result.get('items', [])
-            #logger.info(f"📅 Fetched {len(events)} events from the last {hours_back} hour(s)")
 
             return events
 
         except HttpError as error:
-            logger.error(f"❌ An error occurred: {error}")
+            logger.error(f"CalendarV2ServiceAn error occurred: {error}")
             return []
 
     def get_upcoming_events(self, max_results=10, hours_ahead=24):
@@ -106,12 +105,11 @@ class CalendarV2Service:
             ).execute()
 
             events = events_result.get('items', [])
-            #logger.info(f"📅 Fetched {len(events)} upcoming events in the next {hours_ahead} hours")
 
             return events
 
         except HttpError as error:
-            logger.error(f"❌ An error occurred: {error}")
+            logger.error(f"CalendarV2ServiceAn error occurred: {error}")
             return []
 
     def get_event_by_id(self, event_id):
@@ -133,7 +131,7 @@ class CalendarV2Service:
             return event
 
         except HttpError as error:
-            logger.error(f"❌ Error fetching event {event_id}: {error}")
+            logger.error(f"Error fetching event {event_id}: {error}")
             return None
 
     def format_event_log(self, event):

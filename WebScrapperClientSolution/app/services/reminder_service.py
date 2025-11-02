@@ -26,13 +26,13 @@ class ReminderService:
         """Start the scheduler"""
         if not self.scheduler.running:
             self.scheduler.start()
-            logger.info("✅ Reminder Scheduler started")
+            logger.info("Reminder Scheduler started")
 
     def shutdown(self):
         """Shutdown the scheduler"""
         if self.scheduler.running:
             self.scheduler.shutdown()
-            logger.info("🛑 Reminder Scheduler stopped")
+            logger.info("Reminder Scheduler stopped")
 
     async def send_reminder(
             self,
@@ -52,7 +52,7 @@ class ReminderService:
             reminder_label: Label for the reminder (e.g., "24 hours")
             event_link: Optional link to the event
         """
-        logger.info(f"📧 Sending reminder for: {event_title} ({reminder_label} before)")
+        logger.info(f"Sending reminder for: {event_title} ({reminder_label} before)")
 
         success = await email_service.send_reminder_email(
             event_title=event_title,
@@ -62,9 +62,9 @@ class ReminderService:
         )
 
         if success:
-            logger.info(f"✅ Reminder sent successfully")
+            logger.info("Reminder sent successfully")
         else:
-            logger.error(f"❌ Failed to send reminder")
+            logger.error("Failed to send reminder")
 
         # Remove from scheduled reminders
         reminder_key = f"{event_id}_{reminder_label}"
@@ -118,13 +118,13 @@ class ReminderService:
 
             # Check if already scheduled
             if reminder_key in self.scheduled_reminders:
-                logger.debug(f"⏭️ Reminder already scheduled: {event_title} ({reminder_label})")
+                logger.debug(f"Reminder already scheduled: {event_title} ({reminder_label})")
                 return False
 
             # Check if reminder time is in the past
             now = datetime.now(pytz.UTC)
             if reminder_time <= now:
-                logger.debug(f"⏭️ Reminder time is in the past: {event_title} ({reminder_label})")
+                logger.debug(f"Reminder time is in the past: {event_title} ({reminder_label})")
                 return False
 
             # Schedule the reminder
@@ -150,15 +150,15 @@ class ReminderService:
                 'job_id': job.id
             }
 
-            logger.info(f"⏰ Scheduled reminder: {event_title}")
-            logger.info(f"   📅 Event time: {event_start.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-            logger.info(f"   🔔 Reminder time: {reminder_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-            logger.info(f"   ⏱️ Interval: {reminder_label} before")
+            logger.info(f"Scheduled reminder: {event_title}")
+            logger.info(f"   Event time: {event_start.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+            logger.info(f"   Reminder time: {reminder_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+            logger.info(f"   Interval: {reminder_label} before")
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Error scheduling reminder: {e}")
+            logger.error(f"Error scheduling reminder: {e}")
             return False
 
     async def schedule_reminders_for_upcoming_events(
@@ -176,20 +176,16 @@ class ReminderService:
         Returns:
             Dict with stats about scheduled reminders
         """
-        """
-        logger.info("=" * 80)
-        logger.info(f"🔍 Checking for upcoming events (next {days_ahead} days)...")
-        logger.info("=" * 80)
-        """
+
         try:
             # Fetch upcoming events
             events = calendar_service.get_upcoming_events(days_ahead=days_ahead)
 
             if not events:
-                logger.info("📭 No upcoming events found")
+                logger.info("No upcoming events found")
                 return {"events_found": 0, "reminders_scheduled": 0}
             """
-            logger.info(f"✅ Found {len(events)} upcoming event(s)")
+            logger.info(f"Found {len(events)} upcoming event(s)")
             """
             # Use custom intervals or default
             intervals = custom_intervals or self.default_intervals
@@ -197,24 +193,18 @@ class ReminderService:
             # Schedule reminders
             reminders_scheduled = 0
             for event in events:
-                event_title = event.get('summary', 'Untitled Event')
-                #logger.info(f"\n📌 Processing: {event_title}")
 
                 for interval in intervals:
                     if self.schedule_reminder(event, interval):
                         reminders_scheduled += 1
-            """
-            logger.info("=" * 80)
-            logger.info(f"✅ Scheduled {reminders_scheduled} reminder(s) for {len(events)} event(s)")
-            logger.info("=" * 80)
-            """
+
             return {
                 "events_found": len(events),
                 "reminders_scheduled": reminders_scheduled
             }
 
         except Exception as e:
-            logger.error(f"❌ Error scheduling reminders: {e}")
+            logger.error(f"Error scheduling reminders: {e}")
             return {"events_found": 0, "reminders_scheduled": 0, "error": str(e)}
 
     def get_scheduled_reminders(self) -> List[Dict]:
