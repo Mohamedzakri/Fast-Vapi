@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.config.database import connect_to_mongo, close_mongo_connection
-from app.routes import scrape_router, calendar_router
+from app.routes import scrape_router
 from app.services import DatabaseService
 from app.config.database import get_database
 import os
@@ -107,7 +107,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(scrape_router)
-app.include_router(calendar_router)
 
 
 @app.get("/", tags=["root"])

@@ -54,14 +54,14 @@ async def scrape_url(
     Returns the scraped data information including MongoDB document ID
     """
     try:
-        logger.info(f"📨 Received scrape request for: {request.url}")
+        logger.info(f"Received scrape request for: {request.url}")
 
         # 1. Scrape the URL
         scraped_data = await scraper_service.scrape_url(str(request.url))
 
         # 2. --- NEW: Format content for Knowledge Base ---
         if scraped_data.get('html_content'):
-            logger.info(f"📚 Formatting content for KB...")
+            logger.info(f"Formatting content for KB...")
             kb_content = kb_formatter_service.format(scraped_data['html_content'])
             scraped_data['kb_content'] = kb_content
             # We can now clear the raw HTML if we don't want to store it
@@ -86,7 +86,7 @@ async def scrape_url(
             success=True
         )
 
-        logger.info(f"✅ Successfully completed scrape request for: {request.url}")
+        logger.info(f"Successfully completed scrape request for: {request.url}")
 
         return response
 
@@ -94,7 +94,7 @@ async def scrape_url(
         # ... (error handling) ...
         # (No changes needed in the error handling block)
         error_message = str(e)
-        logger.error(f"❌ Scrape failed for {request.url}: {error_message}")
+        logger.error(f"Scrape failed for {request.url}: {error_message}")
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -134,7 +134,7 @@ async def get_scraped_data(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to retrieve document: {e}")
+        logger.error(f"Failed to retrieve document: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
@@ -168,7 +168,7 @@ async def get_all_scraped_data(
         }
 
     except Exception as e:
-        logger.error(f"❌ Failed to retrieve documents: {e}")
+        logger.error(f"Failed to retrieve documents: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
@@ -188,7 +188,7 @@ async def get_collection_stats(
         stats = await db_service.get_collection_stats()
         return stats
     except Exception as e:
-        logger.error(f"❌ Failed to get stats: {e}")
+        logger.error(f"Failed to get stats: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

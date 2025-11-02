@@ -1,11 +1,11 @@
 import sys
 import os
+from app.services.calendar_service import calendar_service
+import logging
 
 # Add the project directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.services.calendar_service import calendar_service
-import logging
 
 # Configure logging
 logging.basicConfig(

@@ -28,10 +28,10 @@ async def connect_to_mongo():
         database = client[DATABASE_NAME]
         # Test the connection
         await client.admin.command('ping')
-        logger.info(f"✅ Connected to MongoDB at {MONGODB_URL}")
-        logger.info(f"✅ Using database: {DATABASE_NAME}")
+        logger.info(f"Connected to MongoDB at {MONGODB_URL}")
+        logger.info(f"Using database: {DATABASE_NAME}")
     except Exception as e:
-        logger.error(f"❌ Could not connect to MongoDB: {e}")
+        logger.error(f"Could not connect to MongoDB: {e}")
         raise
 
 
@@ -40,7 +40,7 @@ async def close_mongo_connection():
     global client
     if client:
         client.close()
-        logger.info("✅ MongoDB connection closed")
+        logger.info("MongoDB connection closed")
 
 
 def get_database():
