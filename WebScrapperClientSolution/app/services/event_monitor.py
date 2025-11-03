@@ -16,7 +16,6 @@ class EventMonitor:
         self.check_interval = 60  # Check every 60 seconds
         self.known_event_ids: Set[str] = set()
         self._monitor_task = None
-        logger.info("EventMonitor initialized")
 
     async def start(self):
         """Start monitoring for new events"""
@@ -25,14 +24,12 @@ class EventMonitor:
             return
 
         self.is_running = True
-        logger.info("Starting EventMonitor...")
 
         # Initial load of existing events (so we don't notify for old events)
         await self._initialize_known_events()
 
         # Start the monitoring loop
         self._monitor_task = asyncio.create_task(self._monitor_loop())
-        logger.info(f"EventMonitor started (checking every {self.check_interval}s)")
 
     async def stop(self):
         """Stop monitoring"""
@@ -66,8 +63,7 @@ class EventMonitor:
                 event_id = event.get('id')
                 if event_id:
                     self.known_event_ids.add(event_id)
-
-            logger.info(f"Initialized with {len(self.known_event_ids)} existing events")
+            
 
         except Exception as e:
             logger.error(f"Error initializing known events: {e}")

@@ -32,8 +32,6 @@ class NewEventNotifier:
         self.processed_events: Set[str] = set()
         self._load_processed_events()
 
-        logger.info(f"NewEventNotifier initialized (mode: {self.notification_mode})")
-
     def _load_processed_events(self):
         """Load previously processed event IDs from file"""
         processed_file = Path('processed_events.json')
@@ -42,7 +40,6 @@ class NewEventNotifier:
                 with open(processed_file, 'r') as f:
                     data = json.load(f)
                     self.processed_events = set(data.get('event_ids', []))
-                logger.info(f"Loaded {len(self.processed_events)} processed event IDs")
             except Exception as e:
                 logger.warning(f"Could not load processed events: {e}")
 

@@ -43,7 +43,6 @@ class CalendarV2Service:
                     token.write(creds.to_json())
 
             self.service = build('calendar', 'v3', credentials=creds)
-            logger.info("<><><> Google Calendar service initialized successfully <><><>")
         except Exception as e:
             logger.error(f"<><><> Failed to initialize Calendar service: {e} <><><>")
             raise

@@ -13,7 +13,6 @@ class DatabaseService:
     def __init__(self, database: AsyncIOMotorDatabase):
         self.db = database
         self.collection = self.db.scraped_pages
-        logger.info("DatabaseService initialized")
 
     async def create_indexes(self):
         """Create indexes for better query performance"""
@@ -30,8 +29,7 @@ class DatabaseService:
                 default_language="italian"  # Change if you scrape other languages
             )
             # ---------------------------------------------------------
-
-            logger.info("Database indexes created")
+            
         except Exception as e:
             logger.error(f"Failed to create indexes: {e}")
 

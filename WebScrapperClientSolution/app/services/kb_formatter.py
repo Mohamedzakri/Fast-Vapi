@@ -30,8 +30,7 @@ class HtmlKnowledgeBaseFormatter:
             'script', 'style', 'nav', 'footer', 'header',
             'aside', 'form', 'button', 'noscript', 'svg'
         ]
-
-        logger.info("HtmlKnowledgeBaseFormatter initialized (Dense AI-Structure)")
+        
 
     def _clean_html(self, html_content: str) -> str:
         """

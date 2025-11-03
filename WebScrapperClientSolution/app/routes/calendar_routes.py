@@ -316,9 +316,6 @@ async def calendar_webhook(request: Request):
                     logger.info(f"📌 {formatted['title']}")
                     logger.info(f"🕐 {formatted['start_time']} - {formatted['end_time']}")
 
-                    # Log to files
-                    calendar_service.log_event_to_file(formatted)
-
                     # Save to MongoDB
                     try:
                         db = get_database()

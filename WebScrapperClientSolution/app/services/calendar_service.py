@@ -61,7 +61,6 @@ class CalendarService:
 
             # Build the service
             self.service = build('calendar', 'v3', credentials=self.creds)
-            logger.info("Google Calendar service initialized successfully")
 
             # Set initial last_checked time
             self.last_checked = datetime.utcnow()

@@ -26,7 +26,6 @@ class ReminderService:
         """Start the scheduler"""
         if not self.scheduler.running:
             self.scheduler.start()
-            logger.info("Reminder Scheduler started")
 
     def shutdown(self):
         """Shutdown the scheduler"""

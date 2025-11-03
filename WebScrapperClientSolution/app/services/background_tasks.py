@@ -19,7 +19,7 @@ class BackgroundMonitor:
 
         # Reminder intervals - customize these as needed!
         self.reminder_intervals = [
-            {"minutes": 1, "label": "1 minutes"}
+            {"minutes": 5, "label": "845 minutes"}
         ]
 
     async def monitor_calendar(self, db):
@@ -32,12 +32,6 @@ class BackgroundMonitor:
         """
         self.running = True
         self.db_service = DatabaseService(db)
-
-        logger.info("=" * 80)
-        logger.info("AUTOMATED REMINDER SYSTEM STARTED")
-        logger.info(f"Checking for new events every {self.check_interval} seconds")
-        logger.info(f"Auto-scheduling reminders: {', '.join([i['label'] for i in self.reminder_intervals])}")
-        logger.info("=" * 80)
 
         # Initial check on startup
         await self.check_and_schedule_reminders()
@@ -92,8 +86,7 @@ class BackgroundMonitor:
                         else:
                             logger.debug(f"     Skipped: {interval['label']} before")
 
-                    # Log to file
-                    calendar_service.log_event_to_file(formatted)
+
 
             # Also check upcoming events (next 7 days) to catch any we might have missed
 
@@ -130,7 +123,6 @@ class BackgroundMonitor:
         """Start the background monitoring task"""
         if not self.running:
             self.task = asyncio.create_task(self.monitor_calendar(db))
-            logger.info("Background monitoring task created")
 
     async def stop(self):
         """Stop the background monitoring task"""
