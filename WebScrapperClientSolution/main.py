@@ -96,7 +96,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(scrape_router)
-app.include_router(calendar_router)
 
 
 @app.get("/", tags=["root"])
